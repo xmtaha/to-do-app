@@ -1,0 +1,420 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>To-Do List App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: -150;
+            left: 0;
+            width: 100%;
+            height: 140%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 20px;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <header class="flex justify-between items-center py-4">
+            <h1 class="text-3xl font-bold">📋 To-Do List App</h1>
+            <div class="flex gap-2">
+                <select id="filterCategory" class="px-4 py-2 rounded border">
+                    <option value="all">Tüm Kategoriler</option>
+                    <option value="Work">💼 İş</option>
+                    <option value="Personal">🏠 Kişisel</option>
+                    <option value="Health">💪 Sağlık</option>
+                </select>
+                <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" id="addTaskBtn">
+                    <i class="fas fa-plus"></i> Görev Ekle
+                </button>
+            </div>
+        </header>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <section class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-4">📝 Görevler</h2>
+                <div class="mb-4">
+                    <input type="text" id="searchTask" placeholder="Görev ara..." 
+                           class="w-full px-3 py-2 border rounded">
+                </div>
+                <ul id="taskList">
+                    <!-- Tasks will be populated by JavaScript -->
+                </ul>
+            </section>
+
+            <section class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-4">📅 Takvim</h2>
+                <div class="flex justify-between items-center mb-4">
+                    <button id="prevMonth" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <div id="currentMonthYear" class="text-lg font-semibold"></div>
+                    <button id="nextMonth" class="px-2 py-1 bg-gray-200 rounded hover:bg-gray-300">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+                <div id="calendar" class="grid grid-cols-7 gap-1">
+                    <!-- Calendar will be populated by JavaScript -->
+                </div>
+            </section>
+
+            <section class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-4">📊 Performans</h2>
+                <div class="space-y-4">
+                    <div class="relative pt-1">
+                        <h3 class="font-bold">✔️ Tamamlanan Görevler</h3>
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm text-gray-600"><span id="completedTaskCount">0</span> görev</div>
+                            <div class="text-sm text-gray-600" id="completionRate">0%</div>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-green-600 h-2.5 rounded-full" id="completionProgress" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="font-bold">⏳ Bekleyen Görevler</h3>
+                        <p class="text-sm text-gray-600" id="pendingTaskCount">0</p>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="font-bold">⚠️ Geciken Görevler</h3>
+                        <p class="text-sm text-gray-600" id="overdueTaskCount">0</p>
+                    </div>
+                    <div>
+                        <canvas id="taskChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Task Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-xl font-bold mb-4" id="modalTitle">Görev Ekle/Düzenle</h2>
+            <form id="taskForm" class="space-y-4">
+                <input type="hidden" id="taskId">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Başlık</label>
+                    <input type="text" id="taskTitle" required
+                           class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Kategori</label>
+                    <select id="taskCategory" required
+                            class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                        <option value="Work">💼 İş</option>
+                        <option value="Personal">🏠 Kişisel</option>
+                        <option value="Health">💪 Sağlık</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Tarih</label>
+                    <input type="date" id="taskDueDate" required
+                           class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Önem Sırası</label>
+                    <select id="taskPriority" required
+                            class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                        <option value="Low">Düşük</option>
+                        <option value="Medium">Orta</option>
+                        <option value="High">Yüksek</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Açıklama</label>
+                    <textarea id="taskDescription" rows="3"
+                              class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm"></textarea>
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+                            onclick="closeModal()">İptal</button>
+                    <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600">
+                        Kaydet</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        // Modal işlemleri
+        const modal = document.getElementById('taskModal');
+        const taskForm = document.getElementById('taskForm');
+        let currentTaskId = null;
+
+        function openModal(taskId = null) {
+            modal.style.display = 'block';
+            if (taskId) {
+                currentTaskId = taskId;
+                const task = tasks.find(t => t.id === taskId);
+                document.getElementById('modalTitle').textContent = 'Görevi Düzenle';
+                document.getElementById('taskId').value = task.id;
+                document.getElementById('taskTitle').value = task.title;
+                document.getElementById('taskCategory').value = task.category;
+                document.getElementById('taskDueDate').value = task.dueDate;
+                document.getElementById('taskPriority').value = task.priority;
+                document.getElementById('taskDescription').value = task.description;
+            } else {
+                document.getElementById('modalTitle').textContent = 'Yeni Görev';
+                taskForm.reset();
+                currentTaskId = null;
+            }
+        }
+
+        function closeModal() {
+            modal.style.display = 'none';
+            taskForm.reset();
+            currentTaskId = null;
+        }
+
+        // Form gönderme işlemi
+        taskForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const taskData = {
+                id: currentTaskId || Date.now(),
+                title: document.getElementById('taskTitle').value,
+                category: document.getElementById('taskCategory').value,
+                dueDate: document.getElementById('taskDueDate').value,
+                priority: document.getElementById('taskPriority').value,
+                description: document.getElementById('taskDescription').value,
+                completed: false
+            };
+
+            if (currentTaskId) {
+                const index = tasks.findIndex(t => t.id === currentTaskId);
+                tasks[index] = { ...tasks[index], ...taskData };
+            } else {
+                tasks.push(taskData);
+            }
+
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+            closeModal();
+            renderTasks();
+            updateStats();
+            updateChart();
+            renderCalendar();
+        });
+
+        // Görevleri görüntüleme
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            const filterCategory = document.getElementById('filterCategory').value;
+            const searchText = document.getElementById('searchTask').value.toLowerCase();
+
+            let filteredTasks = tasks;
+            if (filterCategory !== 'all') {
+                filteredTasks = filteredTasks.filter(task => task.category === filterCategory);
+            }
+            if (searchText) {
+                filteredTasks = filteredTasks.filter(task => 
+                    task.title.toLowerCase().includes(searchText) || 
+                    task.description.toLowerCase().includes(searchText)
+                );
+            }
+
+            taskList.innerHTML = filteredTasks.map(task => `
+                <li class="flex justify-between items-center p-2 border-b ${task.completed ? 'bg-gray-100' : ''}">
+                    <div class="flex items-center space-x-2">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''}
+                               onchange="toggleTaskComplete(${task.id})"
+                               class="w-4 h-4 text-blue-600">
+                        <div class="${task.completed ? 'line-through text-gray-500' : ''}">
+                            <h3 class="font-bold">${task.title}</h3>
+                            <p class="text-sm text-gray-600">Kategori: ${task.category}</p>
+                            <p class="text-sm text-gray-600">Tarih: ${task.dueDate}</p>
+                            <p class="text-sm text-gray-600">Önem Sırası: ${task.priority}</p>
+                            <p class="text-sm text-gray-600">${task.description}</p>
+                        </div>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button onclick="openModal(${task.id})" 
+                                class="text-blue-500 hover:text-blue-700">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteTask(${task.id})"
+                                class="text-red-500 hover:text-red-700">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        // Görev tamamlama durumunu değiştirme
+        function toggleTaskComplete(taskId) {
+            const task = tasks.find(t => t.id === taskId);
+            if (task) {
+                task.completed = !task.completed;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                renderTasks();
+                updateStats();
+                updateChart();
+                renderCalendar();
+            }
+        }
+
+        // Görev silme
+        function deleteTask(taskId) {
+            if (confirm('Bu görevi silmek istediğinizden emin misiniz?')) {
+                tasks = tasks.filter(task => task.id !== taskId);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                renderTasks();
+                updateStats();
+                updateChart();
+                renderCalendar();
+            }
+        }
+
+        // İstatistikleri güncelleme
+        function updateStats() {
+            const completedTasks = tasks.filter(task => task.completed);
+            const pendingTasks = tasks.filter(task => !task.completed);
+            const today = new Date();
+            const overdueTasks = tasks.filter(task => 
+                !task.completed && new Date(task.dueDate) < today
+            );
+
+            document.getElementById('completedTaskCount').textContent = completedTasks.length;
+            document.getElementById('pendingTaskCount').textContent = pendingTasks.length;
+            document.getElementById('overdueTaskCount').textContent = overdueTasks.length;
+
+            const completionRate = tasks.length > 0 
+                ? Math.round((completedTasks.length / tasks.length) * 100)
+                : 0;
+            document.getElementById('completionRate').textContent = `${completionRate}%`;
+            document.getElementById('completionProgress').style.width = `${completionRate}%`;
+        }
+
+        // Pasta grafiği güncelleme
+        function updateChart() {
+            const completedTasks = tasks.filter(task => task.completed).length;
+            const pendingTasks = tasks.filter(task => !task.completed).length;
+            const overdueTasks = tasks.filter(task => 
+                !task.completed && new Date(task.dueDate) < new Date()
+            ).length;
+
+            const ctx = document.getElementById('taskChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['✔️ Tamamlanan Görevler', '⏳ Bekleyen Görevler', '⚠️ Geciken Görevler'],
+                    datasets: [{
+                        data: [completedTasks, pendingTasks, overdueTasks],
+                        backgroundColor: ['#4CAF50', '#FFC107', '#F44336'],
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                }
+            });
+        }
+
+        // Event listeners
+        document.getElementById('addTaskBtn').addEventListener('click', () => openModal());
+        document.getElementById('filterCategory').addEventListener('change', renderTasks);
+        document.getElementById('searchTask').addEventListener('input', renderTasks);
+
+        // Takvim işlemleri
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+
+        function renderCalendar() {
+            const calendar = document.getElementById('calendar');
+            const currentDate = new Date(currentYear, currentMonth);
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+
+            document.getElementById('currentMonthYear').textContent = currentDate.toLocaleDateString('tr-TR', { month: 'long', year: 'numeric' });
+
+            calendar.innerHTML = '';
+
+            // Gün isimleri
+            const dayNames = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+            dayNames.forEach(day => {
+                const dayNameCell = document.createElement('div');
+                dayNameCell.textContent = day;
+                dayNameCell.classList.add('text-center', 'font-semibold', 'p-2');
+                calendar.appendChild(dayNameCell);
+            });
+
+            // Boş hücreler
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                calendar.appendChild(emptyCell);
+            }
+
+            // Gün hücreleri
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayCell = document.createElement('div');
+                dayCell.textContent = day;
+                dayCell.classList.add('text-center', 'p-2', 'border', 'rounded', 'hover:bg-gray-200', 'cursor-pointer');
+                
+                // Görevleri gün hücrelerinde gösterme
+                const tasksForDay = tasks.filter(task => new Date(task.dueDate).getDate() === day && new Date(task.dueDate).getMonth() === currentMonth && new Date(task.dueDate).getFullYear() === currentYear);
+                if (tasksForDay.length > 0) {
+                    const taskList = document.createElement('ul');
+                    taskList.classList.add('text-xs', 'text-left', 'mt-1');
+                    tasksForDay.forEach(task => {
+                        const taskItem = document.createElement('li');
+                        taskItem.textContent = task.title;
+                        taskItem.classList.add('truncate');
+                        taskList.appendChild(taskItem);
+                    });
+                    dayCell.appendChild(taskList);
+                }
+
+                dayCell.addEventListener('click', () => {
+                    alert(`Seçilen tarih: ${day}/${currentMonth + 1}/${currentYear}`);
+                });
+                calendar.appendChild(dayCell);
+            }
+        }
+
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            currentMonth--;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            renderCalendar();
+        });
+
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            currentMonth++;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            renderCalendar();
+        });
+
+        // Sayfa yüklendiğinde takvimi oluştur
+        window.addEventListener('DOMContentLoaded', () => {
+            renderCalendar();
+            renderTasks();
+            updateStats();
+            updateChart();
+        });
+    </script>
+</body>
+</html>
