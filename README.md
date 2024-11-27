@@ -82,7 +82,24 @@ A comprehensive, feature-rich To-Do List application built with HTML, JavaScript
 
 ## 📸 Screenshots
 
-![image](https://github.com/user-attachments/assets/471c240a-2e56-4688-8f0a-af13839dade7)
+![image](https://github.com/user-attachments/assets/07fcfc00-ff92-4a95-a5e4-580124754c9f)
+
+
+## ✅ Project To-Do List
+
+- [x] Add Task History
+- [x] Task Import
+- [x] Task Export
+- [ ] Add Daily Notes feature
+- [ ] Calendar improvements
+- [ ] Expand theme options
+- [ ] Provide more details in performance tracking
+- [ ] Add offline working capability
+- [ ] Create detailed performance reports
+- [ ] Weekly/Monthly task summaries
+- [ ] Priority-based performance analysis
+- [ ] Advanced notification system
+- [ ] Mobile compatibility improvements
 
 ## 🤝 Contributing
 
