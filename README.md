@@ -66,7 +66,7 @@ A comprehensive, feature-rich To-Do List application built with HTML, JavaScript
 2. Open `index.html` in your browser
 3. Start managing your tasks!
 
-## 🆕 What's New in v2.0
+## 🆕 What's New in v0.0.0.2
 
 - Theme customization for personalized experience
 - Easy task import and export functionality
