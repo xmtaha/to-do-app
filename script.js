@@ -115,59 +115,73 @@ document.getElementById('clearAllHistory').addEventListener('click', () => {
             renderCalendar();
         });
 
-        // Render tasks
-        function renderTasks() {
-            const sortOption = document.getElementById('sortTasks')?.value || 'none';
-            const taskList = document.getElementById('taskList');
-            const filterCategory = document.getElementById('filterCategory').value;
-            const searchText = document.getElementById('searchTask').value.toLowerCase();
+// Render tasks
+function renderTasks() {
+    const sortOption = document.getElementById('sortTasks')?.value || 'none';
+    const taskList = document.getElementById('taskList');
+    const filterCategory = document.getElementById('filterCategory').value;
+    const searchText = document.getElementById('searchTask').value.toLowerCase();
 
-            let filteredTasks = tasks;
-            if (filterCategory !== 'all') {
-                filteredTasks = filteredTasks.filter(task => task.category === filterCategory);
-            }
-            if (searchText) {
-                filteredTasks = filteredTasks.filter(task => 
-                    task.title.toLowerCase().includes(searchText) || 
-                    task.description.toLowerCase().includes(searchText)
-                );
-            }
-            
-           // Tarihe göre sıralama
-            if (sortOption === 'date-asc') {
-                filteredTasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-            } else if (sortOption === 'date-desc') {
-                filteredTasks.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
-            }
+    let filteredTasks = tasks;
+    if (filterCategory !== 'all') {
+        filteredTasks = filteredTasks.filter(task => task.category === filterCategory);
+    }
+    if (searchText) {
+        filteredTasks = filteredTasks.filter(task => 
+            task.title.toLowerCase().includes(searchText) || 
+            task.description.toLowerCase().includes(searchText)
+        );
+    }
 
-            taskList.innerHTML = filteredTasks.map(task => `
-                <li class="flex justify-between items-center p-2 border-b ${task.completed ? 'bg-gray-100' : ''}">
-                    <div class="flex items-center space-x-2">
-                        <input type="checkbox" ${task.completed ? 'checked' : ''}
-                               onchange="toggleTaskComplete(${task.id})"
-                               class="w-4 h-4 text-blue-600">
-                        <div class="${task.completed ? 'line-through text-gray-500' : ''}">
-                            <h3 class="font-bold">${task.title}</h3>
-                            <p class="text-sm text-gray-600">Category: ${task.category}</p>
-                            <p class="text-sm text-gray-600">Date: ${task.dueDate}</p>
-                            <p class="text-sm text-gray-600">Priority: ${task.priority}</p>
-                            <p class="text-sm text-gray-600">Estimated Time: ${task.estimatedTime} hours</p>
-                            <p class="text-sm text-gray-600">${task.description}</p>
-                        </div>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick="openModal(${task.id})" 
-                                class="text-blue-500 hover:text-blue-700">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button onclick="deleteTask(${task.id})"
-                                class="text-red-500 hover:text-red-700">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </li>
-            `).join('');
-        }
+    // Önceliğe göre sıralama
+    if (sortOption === 'priority-asc') {
+        filteredTasks.sort((a, b) => {
+            const priorityA = a.priority === 'High' ? 1 : a.priority === 'Medium' ? 2 : 3;
+            const priorityB = b.priority === 'High' ? 1 : b.priority === 'Medium' ? 2 : 3;
+            return priorityA - priorityB;
+        });
+    } else if (sortOption === 'priority-desc') {
+        filteredTasks.sort((a, b) => {
+            const priorityA = a.priority === 'High' ? 1 : a.priority === 'Medium' ? 2 : 3;
+            const priorityB = b.priority === 'High' ? 1 : b.priority === 'Medium' ? 2 : 3;
+            return priorityB - priorityA;
+        });
+    }
+
+    // Tarihe göre sıralama
+    if (sortOption === 'date-asc') {
+        filteredTasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    } else if (sortOption === 'date-desc') {
+        filteredTasks.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+    }
+
+    taskList.innerHTML = filteredTasks.map(task => `<li class="flex justify-between items-center p-2 border-b ${task.completed ? 'bg-gray-100' : ''}">
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" ${task.completed ? 'checked' : ''}
+                       onchange="toggleTaskComplete(${task.id})"
+                       class="w-4 h-4 text-blue-600">
+                <div class="${task.completed ? 'line-through text-gray-500' : ''}">
+                    <h3 class="font-bold">${task.title}</h3>
+                    <p class="text-sm text-gray-600">Category: ${task.category}</p>
+                    <p class="text-sm text-gray-600">Date: ${task.dueDate}</p>
+                    <p class="text-sm text-gray-600">Priority: ${task.priority}</p>
+                    <p class="text-sm text-gray-600">Estimated Time: ${task.estimatedTime} hours</p>
+                    <p class="text-sm text-gray-600">${task.description}</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="openModal(${task.id})" 
+                        class="text-blue-500 hover:text-blue-700">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteTask(${task.id})"
+                        class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </li>
+    `).join('');
+}
         document.getElementById('sortTasks').addEventListener('change', renderTasks);
 
         // Toggle task completion
