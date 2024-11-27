@@ -1,5 +1,60 @@
+// Clear all history
+document.getElementById('clearAllHistory').addEventListener('click', () => {
+    if (confirm("Are you sure you want to clear all completed tasks from history?")) {
+        // Tüm geçmiş görevleri sil
+        localStorage.removeItem('taskHistory');
+        // Geçmiş listesini temizle
+        const taskHistoryList = document.getElementById('taskHistory');
+        taskHistoryList.innerHTML = '';
+        // Yalnızca tamamlanmamış görevleri tut
+        tasks = tasks.filter(task => !task.completed);
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+        renderTasks();
+        updateStats();
+        updateChart();
+    }
+});
+        // İçe Aktarma Özelliği
+          document.getElementById('importTasks').addEventListener('click', () => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'application/json';
+              input.addEventListener('change', (event) => {
+                  const file = event.target.files[0];
+                  if (!file) return;
+      
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                      try {
+                          const importedTasks = JSON.parse(e.target.result);
+                          if (Array.isArray(importedTasks)) {
+                              tasks = tasks.concat(importedTasks);
+                              localStorage.setItem('tasks', JSON.stringify(tasks));
+                              renderTasks();
+                              updateStats();
+                              updateChart();
+                              alert('Tasks imported successfully!');
+                          } else {
+                              throw new Error('Invalid file format');
+                          }
+                      } catch (error) {
+                          alert('Error importing tasks. Please upload a valid JSON file.');
+                      }
+                  };
+                  reader.readAsText(file);
+              });
+              input.click();
+          });
         let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-
+        
+        document.getElementById('exportTasks').addEventListener('click', () => {
+            const blob = new Blob([JSON.stringify(tasks)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'tasks.json';
+            a.click();
+        });
         // Modal operations
         const modal = document.getElementById('taskModal');
         const taskForm = document.getElementById('taskForm');
@@ -16,6 +71,7 @@
                 document.getElementById('taskCategory').value = task.category;
                 document.getElementById('taskDueDate').value = task.dueDate;
                 document.getElementById('taskPriority').value = task.priority;
+                document.getElementById('taskEstimatedTime').value = task.estimatedTime;
                 document.getElementById('taskDescription').value = task.description;
             } else {
                 document.getElementById('modalTitle').textContent = 'New Task';
@@ -39,6 +95,7 @@
                 category: document.getElementById('taskCategory').value,
                 dueDate: document.getElementById('taskDueDate').value,
                 priority: document.getElementById('taskPriority').value,
+                estimatedTime: document.getElementById('taskEstimatedTime').value,
                 description: document.getElementById('taskDescription').value,
                 completed: false
             };
@@ -60,6 +117,7 @@
 
         // Render tasks
         function renderTasks() {
+            const sortOption = document.getElementById('sortTasks')?.value || 'none';
             const taskList = document.getElementById('taskList');
             const filterCategory = document.getElementById('filterCategory').value;
             const searchText = document.getElementById('searchTask').value.toLowerCase();
@@ -74,6 +132,13 @@
                     task.description.toLowerCase().includes(searchText)
                 );
             }
+            
+           // Tarihe göre sıralama
+            if (sortOption === 'date-asc') {
+                filteredTasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+            } else if (sortOption === 'date-desc') {
+                filteredTasks.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
+            }
 
             taskList.innerHTML = filteredTasks.map(task => `
                 <li class="flex justify-between items-center p-2 border-b ${task.completed ? 'bg-gray-100' : ''}">
@@ -86,6 +151,7 @@
                             <p class="text-sm text-gray-600">Category: ${task.category}</p>
                             <p class="text-sm text-gray-600">Date: ${task.dueDate}</p>
                             <p class="text-sm text-gray-600">Priority: ${task.priority}</p>
+                            <p class="text-sm text-gray-600">Estimated Time: ${task.estimatedTime} hours</p>
                             <p class="text-sm text-gray-600">${task.description}</p>
                         </div>
                     </div>
@@ -102,12 +168,84 @@
                 </li>
             `).join('');
         }
+        document.getElementById('sortTasks').addEventListener('change', renderTasks);
 
         // Toggle task completion
-        function toggleTaskComplete(taskId) {
-            const task = tasks.find(t => t.id === taskId);
-            if (task) {
-                task.completed = !task.completed;
+function toggleTaskComplete(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+        task.completed = !task.completed;
+        if (task.completed) {
+            task.completedDate = new Date().toISOString();
+            addToTaskHistory(task); // Geçmişe ekle
+        } else {
+            removeFromTaskHistory(taskId); // Geçmişten kaldır
+
+        }
+        localStorage.setItem('tasks', JSON.stringify(tasks)); // Güncellenmiş görevleri localStorage'a kaydet
+        renderTasks();
+        updateStats();
+        updateChart();
+        renderCalendar();
+    }
+}
+
+function addToTaskHistory(task) {
+    const taskHistory = JSON.parse(localStorage.getItem('taskHistory')) || [];
+    taskHistory.push({
+        id: task.id,
+        title: task.title,
+        completedDate: task.completedDate // Tamamlanma tarihini ekle
+    });
+    localStorage.setItem('taskHistory', JSON.stringify(taskHistory)); // Güncellenmiş geçmişi localStorage'a kaydet
+
+    const taskHistoryList = document.getElementById('taskHistory');
+    const taskItem = document.createElement('li');
+    taskItem.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'border-b');
+    taskItem.innerHTML = `
+        <div class="flex items-center space-x-2">
+            <div>
+                <h3 class="font-bold">${task.title}</h3>
+                <p class="text-sm text-gray-600">Completed on: ${new Date(task.completedDate).toLocaleDateString()}</p>
+            </div>
+        </div>
+        <div class="flex space-x-2">
+            <button onclick="deleteTaskHistory(${task.id})" class="text-red-500 hover:text-red-700">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+    `;
+    taskHistoryList.appendChild(taskItem);
+}
+
+function removeFromTaskHistory(taskId) {
+    const taskHistory = JSON.parse(localStorage.getItem('taskHistory')) || [];
+    const updatedTaskHistory = taskHistory.filter(task => task.id !== taskId);
+    localStorage.setItem('taskHistory', JSON.stringify(updatedTaskHistory));
+    
+    // Görevi geçmiş listesinden DOM'dan da kaldır
+    const taskHistoryList = document.getElementById('taskHistory');
+    const taskItems = taskHistoryList.getElementsByTagName('li');
+    
+    for (let i = 0; i < taskItems.length; i++) {
+        const taskItem = taskItems[i];
+        const taskTitle = taskItem.querySelector('h3').textContent;
+        
+        // Eğer başlık eşleşiyorsa, DOM'dan kaldır
+        if (taskTitle === tasks.find(t => t.id === taskId).title) {
+            taskHistoryList.removeChild(taskItem);
+            break; // İlk eşleşmeyi bulduktan sonra döngüyü kır
+        }
+    }
+}
+
+        
+        // Görev geçmişindeki bir görevi sil
+        function deleteTaskHistory(taskId) {
+            if (confirm('Are you sure you want to delete this task from history?')) {
+                removeFromTaskHistory(taskId);
+                // Eğer görev, tasks dizisinde de varsa, onu da silin
+                tasks = tasks.filter(task => task.id !== taskId);
                 localStorage.setItem('tasks', JSON.stringify(tasks));
                 renderTasks();
                 updateStats();
@@ -115,7 +253,7 @@
                 renderCalendar();
             }
         }
-
+        
         // Delete task
         function deleteTask(taskId) {
             if (confirm('Are you sure you want to delete this task?')) {
@@ -149,29 +287,38 @@
         }
 
         // Update chart
-        function updateChart() {
-            const completedTasks = tasks.filter(task => task.completed).length;
-            const pendingTasks = tasks.filter(task => !task.completed).length;
-            const overdueTasks = tasks.filter(task => 
-                !task.completed && new Date(task.dueDate) < new Date()
-            ).length;
+let taskChart; // Grafiği saklamak için bir değişken tanımlayın
 
-            const ctx = document.getElementById('taskChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'pie',
-                data: {
-                    labels: ['✔️ Completed Tasks', '⏳ Pending Tasks', '⚠️ Overdue Tasks'],
-                    datasets: [{
-                        data: [completedTasks, pendingTasks, overdueTasks],
-                        backgroundColor: ['#4CAF50', '#FFC107', '#F44336'],
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                }
-            });
+function updateChart() {
+    const completedTasks = tasks.filter(task => task.completed).length;
+    const pendingTasks = tasks.filter(task => !task.completed).length;
+    const overdueTasks = tasks.filter(task => 
+        !task.completed && new Date(task.dueDate) < new Date()
+    ).length;
+
+    const ctx = document.getElementById('taskChart').getContext('2d');
+
+    // Eğer grafik zaten varsa, yok et
+    if (taskChart) {
+        taskChart.destroy();
+    }
+
+    // Yeni grafik oluştur
+    taskChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: ['✔️ Completed Tasks', '⏳ Pending Tasks', '⚠️ Overdue Tasks'],
+            datasets: [{
+                data: [completedTasks, pendingTasks, overdueTasks],
+                backgroundColor: ['#4CAF50', '#FFC107', '#F44336'],
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
         }
+    });
+}
 
         // Event listeners
         document.getElementById('addTaskBtn').addEventListener('click', () => openModal());
@@ -193,11 +340,11 @@
             calendar.innerHTML = '';
 
             // Day names
-            const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+            const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             dayNames.forEach(day => {
                 const dayNameCell = document.createElement('div');
                 dayNameCell.textContent = day;
-                dayNameCell.classList.add('text-center', 'font-semibold', 'p-2');
+                dayNameCell.classList.add('text-center', 'font-semibold', 'p-2', 'bg-gray-200');
                 calendar.appendChild(dayNameCell);
             });
 
@@ -251,10 +398,47 @@
             }
             renderCalendar();
         });
+
+        let isDarkMode = false;
+  
+        document.getElementById('themeToggle').addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+
+            // Koyu mod sınıfını ekle veya kaldır
+            document.body.classList.toggle('dark-mode', isDarkMode);
+
+            // Buton metnini değiştir
+            document.getElementById('themeToggle').textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+        });
+function loadTaskHistory() {
+    const taskHistory = JSON.parse(localStorage.getItem('taskHistory')) || [];
+    const taskHistoryList = document.getElementById('taskHistory');
+    taskHistoryList.innerHTML = ''; // Önceki öğeleri temizle
+
+    taskHistory.forEach(task => {
+        const taskItem = document.createElement('li');
+        taskItem.classList.add('flex', 'justify-between', 'items-center', 'p-2', 'border-b');
+        taskItem.innerHTML = `
+            <div class="flex items-center space-x-2">
+                <div>
+                    <h3 class="font-bold">${task.title}</h3>
+                    <p class="text-sm text-gray-600">Completed on: ${new Date(task.completedDate).toLocaleDateString()}</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="deleteTaskHistory(${task.id})" class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        `;
+        taskHistoryList.appendChild(taskItem);
+    });
+}
         // Render calendar on page load
         window.addEventListener('DOMContentLoaded', () => {
             renderCalendar();
             renderTasks();
             updateStats();
             updateChart();
+            loadTaskHistory();
         });

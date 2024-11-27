@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet"/>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="styles.css"> <!-- CSS dosyası -->
-    
 </head>
 <body class="bg-gray-100">
     <div class="container mx-auto p-4">
@@ -24,6 +23,15 @@
                 <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" id="addTaskBtn">
                     <i class="fas fa-plus"></i> Add Task
                 </button>
+                <button id="themeToggle" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">
+                      🌙 Dark Mode
+                </button>
+                <button id="exportTasks" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                    📤 Export Tasks
+                </button>
+                <button id="importTasks" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+                    📥 Import Tasks
+                </button>
             </div>
         </header>
 
@@ -32,7 +40,12 @@
                 <h2 class="text-xl font-semibold mb-4">📝 Tasks</h2>
                 <div class="mb-4">
                     <input type="text" id="searchTask" placeholder="Search tasks..." 
-                           class="w-full px-3 py-2 border rounded">
+                           class="w-2/3 px-3 py-2 border rounded">
+                    <select id="sortTasks" class="w-1/5 px-3 py-2 border rounded">
+                        <option value="none">Sort By</option>
+                        <option value="date-asc">Date (Ascending)</option>
+                        <option value="date-desc">Date (Descending)</option>
+                    </select>
                 </div>
                 <ul id="taskList">
                     <!-- Tasks will be populated by JavaScript -->
@@ -62,7 +75,7 @@
                         <h3 class="font-bold">✔️ Completed Tasks</h3>
                         <div class="flex items-center justify-between">
                             <div class="text-sm text-gray-600"><span id="completedTaskCount">0</span> tasks</div>
-                            <div class="text-sm text-gray-600" id="completionRate">0%</</div>
+                            <div class="text-sm text-gray-600" id="completionRate">0%</div>
                         </div>
                         <div class="w-full bg-gray-200 rounded-full h-2.5">
                             <div class="bg-green-600 h-2.5 rounded-full" id="completionProgress" style="width: 0%"></div>
@@ -81,6 +94,15 @@
                     </div>
                 </div>
             </section>
+            <section class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold mb-4">📜 Task History</h2>
+                <ul id="taskHistory">
+                    <!-- Completed tasks will be populated here -->
+                </ul>
+                <button id="clearAllHistory" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 mt-4">
+                    ❌ Clear All Completed Tasks
+                </button>
+            </section>
         </main>
     </div>
 
@@ -88,7 +110,7 @@
     <div id="taskModal" class="modal">
         <div class="modal-content">
             <h2 class="text-xl font-bold mb-4" id="modalTitle">Add/Edit Task</h2>
-            <form id="taskForm" class="space-y-4">
+            <form id="taskForm" class="space-y-1">
                 <input type="hidden" id="taskId">
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Title</label>
@@ -119,6 +141,11 @@
                     </select>
                 </div>
                 <div>
+                    <label class="block text-sm font-medium text-gray-700">Estimated Time (hours)</label>
+                    <input type="number" id="taskEstimatedTime" required
+                           class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                </div>
+                <div>
                     <label class="block text-sm font-medium text-gray-700">Description</label>
                     <textarea id="taskDescription" rows="3"
                               class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm"></textarea>
@@ -133,6 +160,5 @@
         </div>
     </div>
     <script src="script.js"></script> <!-- JavaScript dosyası -->
-
 </body>
 </html>
