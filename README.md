@@ -1,8 +1,8 @@
-# 📋 To-Do List App
+# 📋 To-Do List App (v0.0.0.2)
 
 ## 🌟 Project Overview
 
-A comprehensive, feature-rich To-Do List application built with HTML, JavaScript, and Tailwind CSS. This app helps users manage tasks, track performance, and stay organized.
+A comprehensive, feature-rich To-Do List application built with HTML, JavaScript, and Tailwind CSS. Version 2.0 introduces exciting new features to enhance user experience and productivity.
 
 ## ✨ Features
 
@@ -15,6 +15,24 @@ A comprehensive, feature-rich To-Do List application built with HTML, JavaScript
   - Completion rate visualization
   - Task statistics chart
   - Pending and overdue task tracking
+
+- 🎨 New in v0.0.0.2
+  - 🌓 Theme Switching
+    - Light and dark mode
+    - Custom color themes
+  
+  - 📥 Task Import/Export
+    - Export tasks to CSV/JSON
+    - Import tasks from external files
+  
+  - 🔢 Priority-based Sorting
+    - Sort tasks by priority levels
+    - Customizable priority settings
+  
+  - 📜 Task History
+    - Track completed tasks
+    - View task completion timeline
+    - Detailed task history log
 
 - 🗓️ Interactive Calendar
   - Monthly task view
@@ -48,16 +66,23 @@ A comprehensive, feature-rich To-Do List application built with HTML, JavaScript
 2. Open `index.html` in your browser
 3. Start managing your tasks!
 
+## 🆕 What's New in v2.0
+
+- Theme customization for personalized experience
+- Easy task import and export functionality
+- Advanced task sorting by priority
+- Comprehensive task history tracking
+- Improved user interface and performance
+
 ## Acknowledgments
 
-- [Tailwind CSS ](https://tailwindcss.com/) for the styling framework. 
-- [Font Awesome](https://fontawesome.com/) for icons. 
-- [Chart.js](https://www.chartjs.org/) for data visualization. 
+- [Tailwind CSS](https://tailwindcss.com/) for the styling framework
+- [Font Awesome](https://fontawesome.com/) for icons
+- [Chart.js](https://www.chartjs.org/) for data visualization
 
 ## 📸 Screenshots
 
 ![image](https://github.com/user-attachments/assets/471c240a-2e56-4688-8f0a-af13839dade7)
-
 
 ## 🤝 Contributing
 
