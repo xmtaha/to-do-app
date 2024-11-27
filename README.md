@@ -1,4 +1,4 @@
-# 📋 To-Do List App (v0.0.0.0)
+# 📋 To-Do List App (v0.0.0.2)
 
 ## 🌟 Project Overview
 
