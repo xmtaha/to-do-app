@@ -79,7 +79,8 @@ A comprehensive, feature-rich To-Do List application built with HTML, JavaScript
 
 ## 📸 Screenshots
 
-![image](https://github.com/user-attachments/assets/07fcfc00-ff92-4a95-a5e4-580124754c9f)
+![image](https://github.com/user-attachments/assets/62fa40ba-e93b-480c-8484-bd5a93826c1d)
+
 
 ## ✅ Project To-Do List
 
