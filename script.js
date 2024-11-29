@@ -1,3 +1,19 @@
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+const closeMenu = document.getElementById('closeMenu');
+        
+hamburger.addEventListener('click', () => {
+    mobileMenu.classList.toggle('active');
+});
+closeMenu.addEventListener('click', () => {
+    mobileMenu.classList.remove('active');
+});
+mobileMenu.addEventListener('click', (event) => {
+    if (event.target.tagName === 'BUTTON') {
+        mobileMenu.classList.remove('active');
+    }
+});
+
 // Clear all history
 document.getElementById('clearAllHistory').addEventListener('click', () => {
     if (confirm("Are you sure you want to clear all completed tasks from history?")) {
@@ -15,7 +31,7 @@ document.getElementById('clearAllHistory').addEventListener('click', () => {
     }
 });
         // İçe Aktarma Özelliği
-          document.getElementById('importTasks').addEventListener('click', () => {
+          document.getElementById('desktopImportTasks').addEventListener('click', () => {
               const input = document.createElement('input');
               input.type = 'file';
               input.accept = 'application/json';
@@ -45,16 +61,56 @@ document.getElementById('clearAllHistory').addEventListener('click', () => {
               });
               input.click();
           });
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+          
+          document.getElementById('mobileImportTasks').addEventListener('click', () => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'application/json';
+              input.addEventListener('change', (event) => {
+                  const file = event.target.files[0];
+                  if (!file) return;
+      
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                      try {
+                          const importedTasks = JSON.parse(e.target.result);
+                          if (Array.isArray(importedTasks)) {
+                              tasks = tasks.concat(importedTasks);
+                              localStorage.setItem('tasks', JSON.stringify(tasks));
+                              renderTasks();
+                              updateStats();
+                              updateChart();
+                              alert('Tasks imported successfully!');
+                          } else {
+                              throw new Error('Invalid file format');
+                          }
+                      } catch (error) {
+                          alert('Error importing tasks. Please upload a valid JSON file.');
+                      }
+                  };
+                  reader.readAsText(file);
+              });
+              input.click();
+          });
+          
+let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
         
-        document.getElementById('exportTasks').addEventListener('click', () => {
-            const blob = new Blob([JSON.stringify(tasks)], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'tasks.json';
-            a.click();
-        });
+document.getElementById('desktopExportTasks').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(tasks)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tasks.json';
+    a.click();
+});
+document.getElementById('mobileExportTasks').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify(tasks)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'tasks.json';
+    a.click();
+});
         // Modal operations
         const modal = document.getElementById('taskModal');
         const taskForm = document.getElementById('taskForm');
@@ -280,25 +336,26 @@ function removeFromTaskHistory(taskId) {
             }
         }
 
-        // Update stats
-        function updateStats() {
-            const completedTasks = tasks.filter(task => task.completed);
-            const pendingTasks = tasks.filter(task => !task.completed);
-            const today = new Date();
-            const overdueTasks = tasks.filter(task => 
-                !task.completed && new Date(task.dueDate) < today
-            );
+function updateStats() {
+    const completedTasks = tasks.filter(task => task.completed);
+    const pendingTasks = tasks.filter(task => !task.completed);
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
 
-            document.getElementById('completedTaskCount').textContent = completedTasks.length;
-            document.getElementById('pendingTaskCount').textContent = pendingTasks.length;
-            document.getElementById('overdueTaskCount').textContent = overdueTasks.length;
+    const overdueTasks = tasks.filter(task => 
+        !task.completed && new Date(task.dueDate) < today 
+    );
 
-            const completionRate = tasks.length > 0 
-                ? Math.round((completedTasks.length / tasks.length) * 100)
-                : 0;
-            document.getElementById('completionRate').textContent = `${completionRate}%`;
-            document.getElementById('completionProgress').style.width = `${completionRate}%`;
-        }
+    document.getElementById('completedTaskCount').textContent = completedTasks.length;
+    document.getElementById('pendingTaskCount').textContent = pendingTasks.length;
+    document.getElementById('overdueTaskCount').textContent = overdueTasks.length;
+
+    const completionRate = tasks.length > 0 
+        ? Math.round((completedTasks.length / tasks.length) * 100)
+        : 0;
+    document.getElementById('completionRate').textContent = `${completionRate}%`;
+    document.getElementById('completionProgress').style.width = `${completionRate}%`;
+}
 
         // Update chart
 let taskChart; // Grafiği saklamak için bir değişken tanımlayın
@@ -306,8 +363,10 @@ let taskChart; // Grafiği saklamak için bir değişken tanımlayın
 function updateChart() {
     const completedTasks = tasks.filter(task => task.completed).length;
     const pendingTasks = tasks.filter(task => !task.completed).length;
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
     const overdueTasks = tasks.filter(task => 
-        !task.completed && new Date(task.dueDate) < new Date()
+        !task.completed && new Date(task.dueDate) < today
     ).length;
 
     const ctx = document.getElementById('taskChart').getContext('2d');
@@ -335,7 +394,8 @@ function updateChart() {
 }
 
         // Event listeners
-        document.getElementById('addTaskBtn').addEventListener('click', () => openModal());
+        document.getElementById('desktopAddTaskBtn').addEventListener('click', () => openModal());
+        document.getElementById('mobileAddTaskBtn').addEventListener('click', () => openModal());
         document.getElementById('filterCategory').addEventListener('change', renderTasks);
         document.getElementById('searchTask').addEventListener('input', renderTasks);
 
@@ -389,12 +449,47 @@ function updateChart() {
                 }
 
                 dayCell.addEventListener('click', () => {
-                    alert(`Selected date: ${day}/${currentMonth + 1}/${currentYear}`);
+                    renderTasksForSelectedDay(day);
                 });
                 calendar.appendChild(dayCell);
             }
         }
+function renderTasksForSelectedDay(selectedDay) {
+    const taskList = document.getElementById('taskList');
+    const selectedTasks = tasks.filter(task => {
+        const taskDate = new Date(task.dueDate);
+        return taskDate.getDate() === selectedDay && taskDate.getMonth() === currentMonth && taskDate.getFullYear() === currentYear;
+    });
 
+    taskList.innerHTML = selectedTasks.map(task => `
+        <li class="flex justify-between items-center p-2 border-b ${task.completed ? 'bg-gray-100' : ''}">
+            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" ${task.completed ? 'checked' : ''}
+                       onchange="toggleTaskComplete(${task.id})"
+                       class="w-4 h-4 text-blue-600">
+                <div class="${task.completed ? 'line-through text-gray-500' : ''}">
+                    <h3 class="font-bold">${task.title}</h3>
+                    <p class="text-sm text-gray-600">Category: ${task.category}</p>
+                    <p class="text-sm text-gray-600">Date: ${task.dueDate}</p>
+                    <p class="text-sm text-gray-600">Priority: ${task.priority}</p>
+                    <p class="text-sm text-gray-600">Estimated Time: ${task.estimatedTime} hours</p>
+                    <p class="text-sm text-gray-600">${task.description}</p>
+                </div>
+            </div>
+            <div class="flex space-x-2">
+                <button onclick="openModal(${task.id})" 
+                        class="text-blue-500 hover:text-blue-700">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button onclick="deleteTask(${task.id})"
+                        class="text-red-500 hover:text-red-700">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </li>
+    `).join('');
+}
         document.getElementById('prevMonth').addEventListener('click', () => {
             currentMonth--;
             if (currentMonth < 0) {
@@ -413,17 +508,27 @@ function updateChart() {
             renderCalendar();
         });
 
-        let isDarkMode = false;
-  
-        document.getElementById('themeToggle').addEventListener('click', () => {
-            isDarkMode = !isDarkMode;
+let isDarkMode = localStorage.getItem('darkMode') === 'true';
 
-            // Koyu mod sınıfını ekle veya kaldır
-            document.body.classList.toggle('dark-mode', isDarkMode);
 
-            // Buton metnini değiştir
-            document.getElementById('themeToggle').textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
-        });
+document.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    document.getElementById('desktopThemeToggle').textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+    document.getElementById('mobileThemeToggle').textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+});
+document.getElementById('desktopThemeToggle').addEventListener('click', () => {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    document.getElementById('desktopThemeToggle').textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+    localStorage.setItem('darkMode', isDarkMode);
+});
+
+document.getElementById('mobileThemeToggle').addEventListener('click', () => {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    document.getElementById('mobileThemeToggle').textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+    localStorage.setItem('darkMode', isDarkMode);
+});
 function loadTaskHistory() {
     const taskHistory = JSON.parse(localStorage.getItem('taskHistory')) || [];
     const taskHistoryList = document.getElementById('taskHistory');

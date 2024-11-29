@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -10,26 +11,48 @@
     <link rel="stylesheet" href="styles.css"> <!-- CSS dosyası -->
 </head>
 <body class="bg-gray-100">
+   <!-- Hamburger Menüsü -->
+
+    <div class="hamburger" id="hamburger">
+        &#9776; <!-- Hamburger simgesi -->
+    </div>
+    
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="close-menu" id="closeMenu">&times;</button>
+        <button class="menu-button" id="mobileAddTaskBtn">
+            <i class="fas fa-plus"></i> Add Task
+        </button>
+        
+        <button class="menu-button" id="mobileThemeToggle">
+            🌙 Dark Mode
+        </button>
+        <button class="menu-button" id="mobileExportTasks">
+            📤 Export Tasks
+        </button>
+        <button class="menu-button" id="mobileImportTasks">
+            📥 Import Tasks
+        </button>
+    </div>
     <div class="container mx-auto p-4">
         <header class="flex justify-between items-center py-4">
             <h1 class="text-3xl font-bold">📋 To-Do List App</h1>
             <div class="flex gap-2">
-                <select id="filterCategory" class="px-4 py-2 rounded border">
+                <select id="filterCategory" class="px-4 py-2 rounded border ">
                     <option value="all">All Categories</option>
                     <option value="Work">💼 Work</option>
                     <option value="Personal">🏠 Personal</option>
                     <option value="Health">💪 Health</option>
                 </select>
-                <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600" id="addTaskBtn">
+                <button class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 hidden md:block" id="desktopAddTaskBtn">
                     <i class="fas fa-plus"></i> Add Task
                 </button>
-                <button id="themeToggle" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">
+                <button id="desktopThemeToggle" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 hidden md:block">
                       🌙 Dark Mode
                 </button>
-                <button id="exportTasks" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                <button id="desktopExportTasks" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 hidden md:block">
                     📤 Export Tasks
                 </button>
-                <button id="importTasks" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600">
+                <button id="desktopImportTasks" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 hidden md:block">
                     📥 Import Tasks
                 </button>
             </div>
@@ -144,8 +167,7 @@
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Estimated Time (hours)</label>
-                    <input type="number" id="taskEstimatedTime" required
-                           class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
+                    <input type="number" id="taskEstimatedTime" step="0.1" required class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Description</label>
