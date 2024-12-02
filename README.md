@@ -112,3 +112,5 @@ Contributions are welcome! Please follow these steps:
 ## 📜 License
 
 Distributed under the GNU License. See `LICENSE` for more information.
+
+[![Star History Chart](https://api.star-history.com/svg?repos=cosmos-emissary/to-do-app&type=Date)]
