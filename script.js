@@ -32,34 +32,14 @@ document.getElementById('clearAllHistory').addEventListener('click', () => {
 });
         // İçe Aktarma Özelliği
           document.getElementById('desktopImportTasks').addEventListener('click', () => {
-              const input = document.createElement('input');
-              input.type = 'file';
-              input.accept = 'application/json';
-              input.addEventListener('change', (event) => {
-                  const file = event.target.files[0];
-                  if (!file) return;
-      
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                      try {
-                          const importedTasks = JSON.parse(e.target.result);
-                          if (Array.isArray(importedTasks)) {
-                              tasks = tasks.concat(importedTasks);
-                              localStorage.setItem('tasks', JSON.stringify(tasks));
-                              renderTasks();
-                              updateStats();
-                              updateChart();
-                              alert('Tasks imported successfully!');
-                          } else {
-                              throw new Error('Invalid file format');
-                          }
-                      } catch (error) {
-                          alert('Error importing tasks. Please upload a valid JSON file.');
-                      }
-                  };
-                  reader.readAsText(file);
-              });
-              input.click();
+              // Dosya seçici oluşturma
+              const fileInput = createFileInput();
+              
+              // Dosya seçildiğinde
+              fileInput.addEventListener('change', handleFileSelect);
+              
+              // Dosya seçiciyi tetikle
+              fileInput.click();
           });
           
           document.getElementById('mobileImportTasks').addEventListener('click', () => {
@@ -125,13 +105,20 @@ document.getElementById('mobileExportTasks').addEventListener('click', () => {
                 document.getElementById('taskId').value = task.id;
                 document.getElementById('taskTitle').value = task.title;
                 document.getElementById('taskCategory').value = task.category;
-                document.getElementById('taskDueDate').value = task.dueDate;
+                
+                // Tarih ve saati ayır
+                const [date, time] = task.dueDate.split('T');
+                document.getElementById('taskDueDate').value = date;
+                document.getElementById('taskDueTime').value = time || '00:00';
+                
                 document.getElementById('taskPriority').value = task.priority;
                 document.getElementById('taskEstimatedTime').value = task.estimatedTime;
                 document.getElementById('taskDescription').value = task.description;
             } else {
                 document.getElementById('modalTitle').textContent = 'New Task';
                 taskForm.reset();
+                // Varsayılan saat değeri
+                document.getElementById('taskDueTime').value = '23:59';
                 currentTaskId = null;
             }
         }
@@ -145,22 +132,33 @@ document.getElementById('mobileExportTasks').addEventListener('click', () => {
         // Form submission
         taskForm.addEventListener('submit', function(e) {
             e.preventDefault();
+            const dueDate = document.getElementById('taskDueDate').value;
+            const dueTime = document.getElementById('taskDueTime').value;
+            
             const taskData = {
                 id: currentTaskId || Date.now(),
                 title: document.getElementById('taskTitle').value,
                 category: document.getElementById('taskCategory').value,
-                dueDate: document.getElementById('taskDueDate').value,
+                dueDate: `${dueDate}T${dueTime}`, // Tarih ve saati birleştir
                 priority: document.getElementById('taskPriority').value,
                 estimatedTime: document.getElementById('taskEstimatedTime').value,
                 description: document.getElementById('taskDescription').value,
-                completed: false
+                completed: false,
+                isRecurring: document.getElementById('taskRecurring').checked,
+                recurringType: document.getElementById('recurringType').value,
+                recurringInterval: parseInt(document.getElementById('recurringInterval').value) || 1,
+                recurringEndDate: document.getElementById('recurringEndDate').value || null
             };
 
             if (currentTaskId) {
                 const index = tasks.findIndex(t => t.id === currentTaskId);
                 tasks[index] = { ...tasks[index], ...taskData };
             } else {
-                tasks.push(taskData);
+                if (taskData.isRecurring) {
+                    createRecurringTasks(taskData);
+                } else {
+                    tasks.push(taskData);
+                }
             }
 
             localStorage.setItem('tasks', JSON.stringify(tasks));
@@ -211,17 +209,38 @@ function renderTasks() {
         filteredTasks.sort((a, b) => new Date(b.dueDate) - new Date(a.dueDate));
     }
 
-    taskList.innerHTML = filteredTasks.map(task => `<li class="flex justify-between items-center p-2 border-b ${task.completed ? 'bg-gray-100' : ''}">
+    taskList.innerHTML = filteredTasks.map(task => {
+        const dueDateTime = new Date(task.dueDate);
+        const formattedDateTime = dueDateTime.toLocaleString('tr-TR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        return `
+        <li class="flex justify-between items-center p-2 border-b ${task.completed ? 'bg-gray-100' : ''} 
+            priority-${task.priority.toLowerCase()}">
             <div class="flex items-center space-x-2">
                 <input type="checkbox" ${task.completed ? 'checked' : ''}
                        onchange="toggleTaskComplete(${task.id})"
                        class="w-4 h-4 text-blue-600">
                 <div class="${task.completed ? 'line-through text-gray-500' : ''}">
-                    <h3 class="font-bold">${task.title}</h3>
+                    <div class="flex items-center">
+                        <h3 class="font-bold">${task.title}</h3>
+                        ${!task.completed ? getTimeIndicator(task.dueDate) : ''}
+                    </div>
                     <p class="text-sm text-gray-600">Category: ${task.category}</p>
-                    <p class="text-sm text-gray-600">Date: ${task.dueDate}</p>
+                    <p class="text-sm text-gray-600">Date: ${formattedDateTime}</p>
                     <p class="text-sm text-gray-600">Priority: ${task.priority}</p>
                     <p class="text-sm text-gray-600">Estimated Time: ${task.estimatedTime} hours</p>
+                    ${task.isRecurring ? `
+                    <p class="text-sm text-blue-600">
+                        <i class="fas fa-sync-alt"></i> 
+                        ${task.recurringType.charAt(0).toUpperCase() + task.recurringType.slice(1)} tekrar
+                    </p>
+                    ` : ''}
                     <p class="text-sm text-gray-600">${task.description}</p>
                 </div>
             </div>
@@ -236,7 +255,8 @@ function renderTasks() {
                 </button>
             </div>
         </li>
-    `).join('');
+        `;
+    }).join('');
 }
         document.getElementById('sortTasks').addEventListener('change', renderTasks);
 
@@ -561,3 +581,149 @@ function loadTaskHistory() {
             updateChart();
             loadTaskHistory();
         });
+
+// Dosya seçici oluşturma fonksiyonu
+function createFileInput() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'application/json';
+    return input;
+}
+
+// Dosya seçim işleyicisi
+function handleFileSelect(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = handleFileRead;
+    reader.readAsText(file);
+}
+
+// Dosya okuma işleyicisi
+function handleFileRead(event) {
+    try {
+        const importedTasks = JSON.parse(event.target.result);
+        
+        if (Array.isArray(importedTasks)) {
+            importTasks(importedTasks);
+            showSuccessMessage();
+        } else {
+            throw new Error('Geçersiz dosya formatı');
+        }
+    } catch (error) {
+        showErrorMessage();
+    }
+}
+
+// Görevleri içe aktarma
+function importTasks(importedTasks) {
+    tasks = tasks.concat(importedTasks);
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+    updateUI();
+}
+
+// Arayüz güncelleme
+function updateUI() {
+    renderTasks();
+    updateStats();
+    updateChart();
+}
+
+// Mesaj gösterme fonksiyonları
+function showSuccessMessage() {
+    alert('Görevler başarıyla içe aktarıldı!');
+}
+
+function showErrorMessage() {
+    alert('Görevleri içe aktarırken hata oluştu. Lütfen geçerli bir JSON dosyası yükleyin.');
+}
+
+// Tekrar eden görevleri oluşturan fonksiyon
+function createRecurringTasks(baseTask) {
+    const startDate = new Date(baseTask.dueDate);
+    const endDate = baseTask.recurringEndDate ? new Date(baseTask.recurringEndDate) : null;
+    let currentDate = new Date(startDate);
+    
+    // İlk görevi ekle
+    tasks.push({...baseTask});
+    
+    // Tekrar eden görevleri oluştur
+    while (!endDate || currentDate < endDate) {
+        let nextDate = new Date(currentDate);
+        
+        switch(baseTask.recurringType) {
+            case 'daily':
+                nextDate.setDate(nextDate.getDate() + baseTask.recurringInterval);
+                break;
+            case 'weekly':
+                nextDate.setDate(nextDate.getDate() + (7 * baseTask.recurringInterval));
+                break;
+            case 'monthly':
+                nextDate.setMonth(nextDate.getMonth() + baseTask.recurringInterval);
+                break;
+            case 'yearly':
+                nextDate.setFullYear(nextDate.getFullYear() + baseTask.recurringInterval);
+                break;
+        }
+        
+        if (endDate && nextDate > endDate) break;
+        
+        currentDate = nextDate;
+        const newTask = {
+            ...baseTask,
+            id: Date.now() + Math.random(),
+            dueDate: currentDate.toISOString().split('T')[0],
+            completed: false
+        };
+        tasks.push(newTask);
+    }
+}
+
+// Tekrar seçeneklerini göster/gizle
+document.getElementById('taskRecurring').addEventListener('change', function(e) {
+    const recurringOptions = document.getElementById('recurringOptions');
+    recurringOptions.classList.toggle('hidden', !e.target.checked);
+});
+
+// Süre hesaplama fonksiyonu
+function getTimeIndicator(dueDateTime) {
+    const now = new Date();
+    const due = new Date(dueDateTime);
+    const diffTime = due - now;
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diffHours = Math.floor((diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    
+    let timeText = '';
+    let timeClass = '';
+    
+    if (diffTime < 0) {
+        const overdueDays = Math.abs(diffDays);
+        const overdueHours = Math.abs(diffHours);
+        if (overdueDays > 0) {
+            timeText = `${overdueDays} gün ${overdueHours} saat gecikti`;
+        } else {
+            timeText = `${overdueHours} saat gecikti`;
+        }
+        timeClass = 'time-urgent';
+    } else if (diffDays === 0) {
+        if (diffHours <= 3) {
+            timeText = `${diffHours} saat kaldı`;
+            timeClass = 'time-urgent';
+        } else {
+            timeText = `Bugün - ${diffHours} saat kaldı`;
+            timeClass = 'time-warning';
+        }
+    } else if (diffDays === 1) {
+        timeText = `Yarın - ${diffHours} saat kaldı`;
+        timeClass = 'time-warning';
+    } else if (diffDays <= 3) {
+        timeText = `${diffDays} gün ${diffHours} saat kaldı`;
+        timeClass = 'time-warning';
+    } else {
+        timeText = `${diffDays} gün ${diffHours} saat kaldı`;
+        timeClass = 'time-normal';
+    }
+    
+    return `<span class="time-indicator ${timeClass}">${timeText}</span>`;
+}

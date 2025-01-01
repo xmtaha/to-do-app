@@ -1,100 +1,62 @@
-# 📋 To-Do List App (v0.0.0.3)
+# 📋 To-Do List App - Updates
 
-## 🌟 Project Overview
+## 🆕 New Features (v0.0.0.4)
 
-A comprehensive, feature-rich To-Do List application built with HTML, JavaScript, and Tailwind CSS. Version 0.0.0.3 introduces exciting new features to enhance user experience and productivity.
-
-## ✨ Features
-
-- 🚀 Task Management
-  - Add, edit, and delete tasks
-  - Categorize tasks (Work, Personal, Health)
-  - Set priority and due dates
-
-- 📊 Performance Tracking
-  - Completion rate visualization
-  - Task statistics chart
-  - Pending and overdue task tracking
-
-### 🆕 New Features (v0.0.0.4)
+### ⏰ Recurring Tasks
 - Daily, weekly, monthly, and yearly repeat options
 - Customizable repeat intervals
 - Optional end date
 - Special icon for recurring tasks (🔄)
 
-- 🗓️ Interactive Calendar
-  - Monthly task view
-  - Task scheduling
-  - Navigation between months
+### 🎨 Priority Colors
+- High priority: Red theme
+- Medium priority: Orange theme
+- Low priority: Green theme
+- Dark mode compatible colors
 
-- 🔍 Advanced Filtering
-  - Search tasks
-  - Filter by category
-  - Responsive design
+### ⏳ Advanced Time Management
+- Date and time selection
+- Detailed time remaining display:
+  - "X days X hours remaining"
+  - "Today - X hours remaining"
+  - "X days X hours overdue"
+- Status-based color coding:
+  - 🔴 Urgent (less than 3 hours or overdue)
+  - 🟠 Warning (3 days or less)
+  - 🟢 Normal (more than 3 days)
 
-## 🛠️ Technologies Used
+### 🌙 Dark Mode Improvements
+- Enhanced modal design
+- Custom styles for form elements
+- Special theme for date and time picker
+- Dark mode compatibility for icons and indicators
 
-- HTML5
-- Tailwind CSS
-- JavaScript
-- Chart.js
-- Font Awesome
-- Local Storage
+### 📱 Mobile Compatibility
+- Responsive design
+- Modal scroll issue fixed
+- Hamburger menu
+- Optimized for mobile devices
 
-## 🚀 Getting Started
+## 🛠️ Technical Improvements
+- Enhanced code readability
+- Performance optimizations
+- Improved error handling
+- Enhanced LocalStorage usage
 
-### Prerequisites
-
-- Modern web browser
-- Internet connection (for CDN resources)
-
-### Installation
-
-1. Clone the repository
-2. Open `index.html` in your browser
-3. Start managing your tasks!
-
-
-## Acknowledgments
-
-- [Tailwind CSS](https://tailwindcss.com/) for the styling framework
-- [Font Awesome](https://fontawesome.com/) for icons
-- [Chart.js](https://www.chartjs.org/) for data visualization
-
-## 📸 Screenshots
-
-![image](https://github.com/user-attachments/assets/62fa40ba-e93b-480c-8484-bd5a93826c1d)
-
-
-## ✅ Project To-Do List
-
-- [x] Add Task History
-- [x] Task Import
-- [x] Task Export
-- [x] Dark Mode Compatibility
-- [x] Calendar-Based Filtering
-- [x] Mobile Compatibility Improvements
-- [x] Hamburger Menu for Mobile
-- [ ] Add Daily Notes feature
-- [ ] Expand theme options
-- [ ] Add offline working capability
-- [ ] Create detailed performance reports
-- [ ] Weekly/Monthly task summaries
-- [ ] Priority-based performance analysis
-- [ ] Advanced notification system
+## 🎯 Upcoming Updates
+- [ ] Task tagging system
+- [ ] Advanced statistics
+- [ ] Task notes feature
+- [ ] Multi-language support
+- [ ] Task sharing capability
 
 ## 🤝 Contributing
+1. Fork this repository
+2. Create a new branch (`git checkout -b feature/NewFeature`)
+3. Commit your changes (`git commit -m 'Added new feature'`)
+4. Push to the branch (`git push origin feature/NewFeature`)
+5. Create a Pull Request
 
-Contributions are welcome! Please follow these steps:
+## 📝 License
+This project is licensed under the GNU License. See the `LICENSE` file for details.
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📜 License
-
-Distributed under the GNU License. See `LICENSE` for more information.
-
-[![Star History Chart](https://api.star-history.com/svg?repos=cosmos-emissary/to-do-app&type=Date)]

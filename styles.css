@@ -8,16 +8,18 @@ body {
 .modal {
     display: none;
     position: fixed;
-    top: -150px; 
+    top: 0;
     left: 0;
     width: 100%;
-    height: 150%;
+    height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
+    overflow-y: auto;
+    padding: 20px;
 }
 
 /* Modal ayarları */
 .dark-mode .modal {
-    background-color: #1e1e1e; /* Modal arka plan rengi */
+    background-color: #000000; /* Modal arka plan rengi */
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
@@ -59,30 +61,31 @@ textarea:focus {
 
 .modal-content {
     background-color: white;
-    margin: 15% auto; /* Merkezleme için */
+    margin: 20px auto;
     padding: 20px;
-    width: 90%; /* Mobilde daha geniş görünmesi için */
-    max-width: 500px;
-    border-radius: 11px;
+    border-radius: 8px;
+    max-width: 600px;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
 }
 
 .dark-mode .modal {
     display: none;
     position: fixed;
-    top: -150px; 
+    top: 0;
     left: 0;
     width: 100%;
-    height: 150%;
-    background-color: rgba(0, 0, 0, 0.5);
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    overflow-y: auto;
+    padding: 20px;
 }
 
 .dark-mode .modal-content {
-    background-color: black;
-    margin: 15% auto; /* Merkezleme için */
-    padding: 20px;
-    width: 90%; /* Mobilde daha geniş görünmesi için */
-    max-width: 500px;
-    border-radius: 11px;
+    background-color: #2d3748;
+    color: #ffffff;
+    border: 1px solid #4a5568;
 }
 
 .dark-mode {
@@ -133,9 +136,9 @@ textarea:focus {
 /* Mobil uyumluluk için medya sorguları */
 @media (max-width: 600px) {
     .modal-content {
-        width: 90%; /* Mobilde daha geniş görünmesi için */
-        margin: 10% auto; /* Dikeyde daha az boşluk */
-        padding: 15px; /* Daha az iç boşluk */
+        width: 90%;
+        margin: 10px auto;
+        padding: 15px;
     }
 
     body {
@@ -217,4 +220,101 @@ textarea:focus {
     .hamburger {
         display: none; /* Masaüstünde hamburger menüyü gizle */
     }
+}
+
+/* Öncelik renkleri için */
+.priority-high {
+    border-left: 4px solid #ef4444 !important; /* Kırmızı */
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.priority-medium {
+    border-left: 4px solid #f97316 !important; /* Turuncu */
+    background-color: rgba(249, 115, 22, 0.1);
+}
+
+.priority-low {
+    border-left: 4px solid #22c55e !important; /* Yeşil */
+    background-color: rgba(34, 197, 94, 0.1);
+}
+
+/* Dark mode için öncelik renkleri */
+.dark-mode .priority-high {
+    background-color: rgba(239, 68, 68, 0.2);
+}
+
+.dark-mode .priority-medium {
+    background-color: rgba(249, 115, 22, 0.2);
+}
+
+.dark-mode .priority-low {
+    background-color: rgba(34, 197, 94, 0.2);
+}
+
+/* Süre göstergesi için */
+.time-indicator {
+    font-size: 0.875rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+}
+
+.time-urgent {
+    color: #ef4444;
+    background-color: rgba(239, 68, 68, 0.1);
+}
+
+.time-warning {
+    color: #f97316;
+    background-color: rgba(249, 115, 22, 0.1);
+}
+
+.time-normal {
+    color: #22c55e;
+    background-color: rgba(34, 197, 94, 0.1);
+}
+
+/* Dark mode için süre göstergesi */
+.dark-mode .time-indicator {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode için input[type="time"] özelleştirmesi */
+.dark-mode input[type="time"] {
+    background-color: #2c2c2c;
+    color: #e0e0e0;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 8px;
+}
+
+/* Dark mode için time input içindeki ok ve saat ikonlarının rengi */
+.dark-mode input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(1); /* Saat ikonunu beyaz yap */
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.dark-mode input[type="time"]::-webkit-time-picker-indicator {
+    filter: invert(1); /* Ok ikonunu beyaz yap */
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+/* Firefox için özel stil */
+.dark-mode input[type="time"]::-moz-calendar-picker-indicator {
+    filter: invert(1);
+    opacity: 0.7;
+}
+
+/* Hover durumu */
+.dark-mode input[type="time"]:hover {
+    border-color: #3f51b5;
+}
+
+/* Focus durumu */
+.dark-mode input[type="time"]:focus {
+    border-color: #3f51b5;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(63, 81, 181, 0.2);
 }
