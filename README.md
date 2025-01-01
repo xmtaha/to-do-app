@@ -16,21 +16,11 @@ A comprehensive, feature-rich To-Do List application built with HTML, JavaScript
   - Task statistics chart
   - Pending and overdue task tracking
 
-- 🎨 New in v0.0.0.3
-  - 🌙 Dark Mode Compatibility
-    - Improved dark mode support for better user experience
-  
-  - 📅 Calendar-Based Filtering
-    - Filter tasks based on calendar dates
-    - Enhanced task visibility for specific periods
-  
-  - 📱 Mobile Compatibility Improvements
-    - Optimized layout for mobile devices
-    - Enhanced usability on smaller screens
-  
-  - 🍔 Hamburger Menu for Mobile
-    - Simplified navigation with a responsive hamburger menu
-    - Easy access to all features on mobile devices
+### 🆕 New Features (v0.0.0.4)
+- Daily, weekly, monthly, and yearly repeat options
+- Customizable repeat intervals
+- Optional end date
+- Special icon for recurring tasks (🔄)
 
 - 🗓️ Interactive Calendar
   - Monthly task view
@@ -64,12 +54,6 @@ A comprehensive, feature-rich To-Do List application built with HTML, JavaScript
 2. Open `index.html` in your browser
 3. Start managing your tasks!
 
-## 🆕 What's New in v0.0.0.3
-
-- Improved dark mode compatibility for a better user experience
-- Calendar-based filtering for enhanced task management
-- Mobile compatibility improvements for better usability
-- Introduction of a hamburger menu for mobile navigation
 
 ## Acknowledgments
 
